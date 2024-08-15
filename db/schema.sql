@@ -1,21 +1,32 @@
-DROP DATABASE IF EXISTS movies_db;
-CREATE DATABASE movies_db;
+DROP DATABASE IF EXISTS employees_tracker.db;
+CREATE DATABASE employees_tracker.db;
 
-\c movies_db;
+\c employees_tracker.db;
 
-/*//TODO: Create a movie table */
-CREATE TABLE movie (
+CREATE TABLE departments (
     id SERIAL PRIMARY KEY,
     name VARCHAR(250)
 
 );
 
-/*//TODO: Create a review table */
-CREATE TABLE review (
+CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
-    text TEXT NOT NULL,
-    movie_id INTEGER, 
-    FOREIGN KEY (movie_id) REFERENCES movie(id) ON DELETE SET NULL
+    job_title VARCHAR(250),
+    salary INTEGER,
+    department_id INTEGER 
+    FOREIGN KEY (department_id) 
+    REFERENCES departments(id) ON DELETE SET NULL
 );
+
+CREATE TABLE employees (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    manager VARCHAR(100),
+    role_id INTEGER 
+    FOREIGN KEY(role_id)
+    REFERENCES roles(id) ON DELETE SET NULL
+);
+
 
 
