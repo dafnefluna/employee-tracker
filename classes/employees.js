@@ -1,8 +1,9 @@
 // we bring in required libraries and files --> 
 import inquirer from 'inquirer';
-import { QueryResult } from 'pg';
+import pkg from 'pg';
+const { QueryResult } = pkg;
 //const inquirer = require('inquirer');
-import {connectToDb, pool } from './connection.js';
+import {connectToDb, pool } from '../connection.js';
 // We need to create our CONNECTION to the Database
 
 await connectToDb();

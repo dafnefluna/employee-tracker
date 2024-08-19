@@ -1,9 +1,10 @@
 import inquirer from "inquirer";
-import { connectToDb, pool } from "./connection";
-import allDepartments from "./deps";
+import { connectToDb, pool } from "../connection.js";
+import Departments from "./deps.js";
+// const {allDepartments} = Departments;
 
 await connectToDb();
-const departments = await allDepartments();
+const departments = await Departments.allDepartments();
 const departmentChoices = departments.map((dept) => dept.name);
 
 class Roles {

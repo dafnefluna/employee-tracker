@@ -1,12 +1,13 @@
 // we bring in required libraries and files -->
 import inquirer from "inquirer";
 //const inquirer = require('inquirer');
-import { connectToDb, pool } from "./connection";
+import { connectToDb, pool } from "../connection.js";
 // We need to create our CONNECTION to the Database
 
 await connectToDb();
 
 class Departments {
+    constructor() {};
     allDepartments() {
         inquirer
             .prompt([
