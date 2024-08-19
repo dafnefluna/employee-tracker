@@ -2,19 +2,19 @@
     "name": "develop",
     "version": "1.0.0",
     "description": "",
-    "main": "dist/index.js",
+    "main": "index.js",
     "type": "module",
     "scripts": {
-        "build": "npx tsc",
-        "start": "npm run build && node dist/index.js",
+        "build": "",
+        "start": "npm run build && node index.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "inquirer": "^9.2.19",
-        "pg": "^8.12.0",
-        "typescript": "^5.4.5"
+        "dotenv": "^16.4.5",
+        "inquirer": "^10.1.8",
+        "pg": "^8.12.0"
     },
     "devDependencies": {
         "@types/inquirer": "^9.0.7",

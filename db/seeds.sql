@@ -5,7 +5,7 @@ VALUES ('Super Human Resources'),
        ('Uniform and Design');
 
 INSERT INTO roles (job_title, salary, department_id)
-VALUES ('Chief Super Human Resources', 100000, 1)
+VALUES ('Chief Super Human Resources', 100000, 1),
        ('Benefits Specialist', 80000, 1),
        ('General Counsel', 100000, 2),
        ('Director of Liabilities', 85000, 2),
@@ -20,8 +20,11 @@ VALUES ('Chief Super Human Resources', 100000, 1)
        ('Designer Extraordinaire', 90000, 4),
        ('Design Assistant', 40000, 4);
 
-INSERT INTO employees (first_name, last_name, manager, role_id)
-       ('PowerPuff', "Girls", "Professor Utonium", 10),
-       ('Bat', 'Man', 'Alfred Pennyworth', 12),
-       ('Agent', 'Roz', 'Nick Fury', 6),
-       ('Edna E', 'Mode', 'Dir. of Finance and Controller', 13);
+INSERT INTO employees (first_name, last_name, roles_id, manager_id)
+VALUES ('Nick', 'Fury', 6, NULL), 
+       ('Professor', 'Plutonium', 7, 1),
+       ('Alfred', 'Pennyworth', 8, 1),
+       ('PowerPuff', 'Girls', 10, 2),
+       ('Bat', 'Man', 12, 3),
+       ('Agent', 'Roz', 4, NULL),
+       ('Edna E', 'Mode', 13, NULL);
