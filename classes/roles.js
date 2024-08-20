@@ -1,31 +1,32 @@
-import inquirer from "inquirer";
-import { connectToDb, pool } from "../connection.js";
-import Departments from "./deps.js";
-// const {allDepartments} = Departments;
-
-await connectToDb();
-const departments = await Departments.allDepartments();
-const departmentChoices = departments.map((dept) => dept.name);
+import inquirer from 'inquirer';
+import { connectToDb, pool } from '../connection.js';
+import Departments from './deps.js';
+const { allDepartments } = new Departments();
 
 class Roles {
-    allRoles() {
+    async allRoles() {
+        await connectToDb();
+        const departments = await allDepartments();
+        // console.log('departments: ', departments);
+        const departmentChoices = departments?.map((dept) => dept?.name);
+    
         inquirer
             .prompt([
                 {
-                    type: "list",
-                    name: "allRoles",
-                    message: "View All Roles",
-                    choices: ["View All Roles"],
+                    type: 'list',
+                    name: 'allRoles',
+                    message: 'View All Roles',
+                    choices: ['View All Roles'],
                 },
             ])
             .then((answers) => {
-                if (answers.allRoles === "View All Roles") {
-                    pool.query("SELECT * FROM roles;", function (error, data) {
-                        if (error) {
-                            console.log("err: ", error);
-                            return;
+                if (answers.allRoles === 'View All Roles') {
+                    pool.query('SELECT * FROM roles;', function (err, queryResult) {
+                        if (err) {
+                            console.error(err);
+                        } else {
+                            console.log(queryResult.rows);
                         }
-                        console.log("Data: ", data);
                     });
                 }
             });
@@ -35,19 +36,19 @@ class Roles {
         inquirer
             .prompt([
                 {
-                    type: "input",
-                    name: "jobTitle",
-                    message: "What is the job title?",
+                    type: 'input',
+                    name: 'jobTitle',
+                    message: 'What is the job title?',
                 },
                 {
-                    type: "input",
-                    name: "salary",
-                    message: "What is the salary?",
+                    type: 'input',
+                    name: 'salary',
+                    message: 'What is the salary?',
                 },
                 {
-                    type: "list",
-                    name: "department",
-                    message: "What department is it in?",
+                    type: 'list',
+                    name: 'department',
+                    message: 'What department is it in?',
                     choices: departmentChoices,
                 },
             ])
@@ -58,13 +59,13 @@ class Roles {
                     department: answers.department,
                 };
                 pool.query(
-                    "INSERT INTO roles (job_title, salary, department_id) VALUES ($1, $2, $3);",
-                    [newRole.jobTitle, newRole.salary, newRole.deparment],
+                    'INSERT INTO roles (job_title, salary, department_id) VALUES ($1, $2, $3);',
+                    [newRole.jobTitle, newRole.salary, newRole.department],
                     function (error, data) {
                         if (error) {
-                            console.log("Error", error);
+                            console.log('Error', error);
                         } else {
-                            console.log("New Role Added");
+                            console.log('New Role Added');
                         }
                     }
                 );

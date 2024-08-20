@@ -1,8 +1,8 @@
-// we bring in required libraries and files -->
 import inquirer from "inquirer";
-//const inquirer = require('inquirer');
+import pkg from 'pg';
+const { QueryResult } = pkg;
 import { connectToDb, pool } from "../connection.js";
-// We need to create our CONNECTION to the Database
+
 
 await connectToDb();
 
@@ -22,10 +22,12 @@ class Departments {
                 if (answers.allDepartments === "View All Departments") {
                     pool.query("SELECT * FROM departments;", function (error, data) {
                         if (error) {
-                            console.log("err: ", error);
-                            return;
+                            console.error(error);
+                        } else {
+                            data.rows.forEach((department) => {
+                                console.log(department);
+                            });
                         }
-                        console.log("Data: ", data);
                     });
                 }
             });
