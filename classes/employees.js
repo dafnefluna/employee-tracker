@@ -1,63 +1,76 @@
 import inquirer from "inquirer";
 import pkg from "pg";
 const { QueryResult } = pkg;
-import { connectToDb, pool } from "../connection.js";
-import roles from "./roles.js";
+import { pool } from "../connection.js";
+import Roles from "./roles.js";
+import startManaging from "../index.js";
 
-await connectToDb();
+// await connectToDb();
 
-let newManager = [];
-try {
-    const queryResult = await pool.query(
-        "SELECT id, first_name, last_name FROM employees;"
-    );
-    newManager = queryResult.rows.map((row) => ({
-        id: row.id,
-        firstName: row.first_name,
-        lastName: row.last_name,
-    }));
-} catch (err) {
-    console.log(err);
-}
-
-// console.log(".........", newRole);
-// console.log("...........", newManager);
+// try {
+//     const queryResult = await pool.query(
+//         "SELECT id, first_name, last_name FROM employees;"
+//     );
+//     newManager = queryResult.rows.map((row) => ({
+//         id: row.id,
+//         firstName: row.first_name,
+//         lastName: row.last_name,
+//     }));
+// } catch (err) {
+//     console.log(err);
+// }
 
 class Employees {
     allEmployees() {
-        inquirer
-            .prompt([
-                {
-                    type: "list",
-                    name: "allEmployees",
-                    message: "View All Employees",
-                    choices: ["View All Employees"],
-                },
-            ])
-            .then((answers) => {
-                if (answers.allEmployees === "View All Employees") {
-                    pool.query("SELECT * FROM employees;", (err, queryResult) => {
-                        if (err) {
-                            console.error(err);
-                        } else {
-                            console.log(queryResult.rows);
-                        }
-                    });
-                }
-            });
+        pool.query("SELECT * FROM employees;", (err, queryResult) => {
+            if (err) {
+                console.error(err);
+            } else {
+                console.log(queryResult.rows);
+            }
+        });
+        startManaging();
+    }
+
+    returnEmployees() {
+        pool.query("SELECT * FROM employees;", (err, queryResult) => {
+            if (err) {
+                console.error(err);
+            } else {
+                return queryResult.rows;
+            }
+        });
+    }
+
+    returnRoles() {
+        pool.query('SELECT * FROM roles;', function (err, queryResult) {
+            if (err) {
+                console.error(err);
+            } else {
+                return queryResult.rows;
+            }
+        });
     }
 
     async addEmployee() {
-        const newRole = [];
-        try {
-            const queryResult = await pool.query("SELECT id, job_title FROM roles;");
+        const newRole = this.returnRoles();
+        const newRoleChoices = newRole?.map((role) => role?.job_title);
+        // I have to create a function for value for employees as a list of choices
 
-            queryResult.rows.forEach((row) => {
-                newRole.push({ id: row.id, title: row.job_title });
-            });
-        } catch (err) {
-            console.error(err);
-        }
+        const newManager = this.returnEmployees();
+        const newManagerChoices = newManager?.map((manager) => manager?.first_name);
+
+        console.log(".........", newRole);
+        console.log("...........", newManager);
+        // try {
+        //     const queryResult = await pool.query("SELECT id, job_title FROM roles;");
+
+        //     queryResult.rows.forEach((row) => {
+        //         newRole.push({ id: row.id, title: row.job_title });
+        //     });
+        // } catch (err) {
+        //     console.error(err);
+        // }
 
         inquirer
             .prompt([
@@ -75,13 +88,13 @@ class Employees {
                     type: "list",
                     name: "role",
                     message: "What is their role?",
-                    choices: newRole.map(role => role.title),
+                    choices: newRoleChoices,
                 },
                 {
                     type: "list",
                     name: "manager",
                     message: "Who is their manager?",
-                    choices: newManager.map(manager => `${manager.firstName} ${manager.lastName}`),
+                    choices: newManagerChoices,
                 },
             ])
             .then((answers) => {
@@ -116,6 +129,7 @@ class Employees {
     updateEmployee() {
         // const employees = this.allEmployees();
         // console.log('...........', employees);
+
         inquirer
             .prompt([
                 {

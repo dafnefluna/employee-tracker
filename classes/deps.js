@@ -9,17 +9,6 @@ await connectToDb();
 class Departments {
     constructor() {};
     allDepartments() {
-        inquirer
-            .prompt([
-                {
-                    type: "list",
-                    name: "allDepartments",
-                    message: "View All Departments",
-                    choices: ["View All Departments"],
-                },
-            ])
-            .then((answers) => {
-                if (answers.allDepartments === "View All Departments") {
                     pool.query("SELECT * FROM departments;", function (error, data) {
                         if (error) {
                             console.error(error);
@@ -30,8 +19,7 @@ class Departments {
                         }
                     });
                 }
-            });
-    }
+
 
     addDepartment() {
         inquirer

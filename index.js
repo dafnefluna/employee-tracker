@@ -11,7 +11,7 @@ async function startManaging() {
     const roles = new Roles();
     const departments = new Departments();
 
-    while (true) {
+    // while (true) {
         const answers = await inquirer.prompt([
             {
                 type: 'list',
@@ -48,6 +48,8 @@ async function startManaging() {
                 return;
         }
     }
-}
+// }
 
 startManaging();
+
+export default startManaging;
