@@ -1,11 +1,11 @@
 import inquirer from "inquirer";
 import pkg from "pg";
 const { QueryResult } = pkg;
-import { pool } from "../connection.js";
+import {connectToDb, pool } from "../connection.js";
 import Roles from "./roles.js";
 import startManaging from "../index.js";
 
-// await connectToDb();
+await connectToDb();
 
 // try {
 //     const queryResult = await pool.query(
@@ -26,51 +26,85 @@ class Employees {
             if (err) {
                 console.error(err);
             } else {
-                console.log(queryResult.rows);
+                //console.log(queryResult.rows);
+                console.table(queryResult.rows);
             }
         });
         startManaging();
     }
 
     returnEmployees() {
-        pool.query("SELECT * FROM employees;", (err, queryResult) => {
-            if (err) {
-                console.error(err);
-            } else {
-                return queryResult.rows;
-            }
+        return new Promise((resolve, reject) => {
+            let employeesArray = [];
+            pool.query("SELECT * FROM employees;", (err, queryResult) => {
+                if (err) {
+                    console.error(err);
+                    reject(err); // Reject the promise if there is an error
+                } else {
+                    employeesArray = queryResult.rows;
+                    resolve(employeesArray); // Resolve the promise with the employees array
+                }
+            });
         });
     }
-
+    
     returnRoles() {
-        pool.query('SELECT * FROM roles;', function (err, queryResult) {
+        return new Promise((resolve, reject) => {
+            let rolesArray = [];
+            pool.query("SELECT * FROM roles;", (err, queryResult) => {
+                if (err) {
+                    console.error(err);
+                    reject(err); // Reject the promise if there is an error
+                } else {
+                    rolesArray = queryResult.rows;
+                    resolve(rolesArray); // Resolve the promise with the employees array
+                }
+            });
+        });
+
+        /*
+        let rolesArray = [];
+        pool.query("SELECT * FROM roles;", function (err, queryResult){
             if (err) {
                 console.error(err);
             } else {
-                return queryResult.rows;
+                //console.log("Roles: ", queryResult)
+                rolesArray = queryResult.rows;
+                //return rolesArray = queryResult.rows;
+                return rolesArray;
             }
         });
+        */
+       // console.log("Roles: ", queryResult) // --> This console.log() is OUTSIDE of the callback function scope
+
     }
-
+    
     async addEmployee() {
-        const newRole = this.returnRoles();
-        const newRoleChoices = newRole?.map((role) => role?.job_title);
+        const newRole = await this.returnRoles();
+        // console.log("In Employee --> Roles returned: ", newRole);
+        const newRoleChoices = newRole?.map((role) => {
+            return {
+                name: role.job_title,
+                value: role.id
+            }
+        })
         // I have to create a function for value for employees as a list of choices
+        //console.log("Role Choices: ", newRoleChoices);
 
-        const newManager = this.returnEmployees();
-        const newManagerChoices = newManager?.map((manager) => manager?.first_name);
+        const newManager = await this.returnEmployees();
+        const newManagerChoices = newManager?.map((manager) => {
+           // console.log("Data: ", manager);
+            // we are using the INQUIRER "choices" setup { name: "what does the user see when making a selection", value: ID of the choosen Record}
+            let tempObj = {
+                name: `${manager.first_name} ${manager.last_name}`,
+                value: manager.id
+            }      
+            
+            return tempObj
+        });
 
-        console.log(".........", newRole);
-        console.log("...........", newManager);
-        // try {
-        //     const queryResult = await pool.query("SELECT id, job_title FROM roles;");
-
-        //     queryResult.rows.forEach((row) => {
-        //         newRole.push({ id: row.id, title: row.job_title });
-        //     });
-        // } catch (err) {
-        //     console.error(err);
-        // }
+        // console.log(".........", newRole);
+        //console.log("...........", newManagerChoices);
 
         inquirer
             .prompt([
@@ -104,6 +138,8 @@ class Employees {
                     role: answers.role,
                     manager: answers.manager,
                 };
+                console.log("New Employee: ", newEmployee);
+
                 pool.query(
                     "INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4);",
                     [
@@ -125,11 +161,9 @@ class Employees {
 
     // find a way to show all the roles from roles.js
     // Find a way to show all the employees from the function above.
-
-    updateEmployee() {
-        // const employees = this.allEmployees();
+  // const employees = this.allEmployees();
         // console.log('...........', employees);
-
+    updateEmployee() {
         inquirer
             .prompt([
                 {
