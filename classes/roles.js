@@ -1,38 +1,47 @@
 import inquirer from 'inquirer';
+import pkg from "pg";
+const { QueryResult } = pkg;
 import { connectToDb, pool } from '../connection.js';
-import Departments from './deps.js';
-const { allDepartments } = new Departments();
+import startManaging from '../index.js';
+
+await connectToDb();
 
 class Roles {
-    async allRoles() {
-        await connectToDb();
-        const departments = await allDepartments();
-        // console.log('departments: ', departments);
-        const departmentChoices = departments?.map((dept) => dept?.name);
-    
-        inquirer
-            .prompt([
-                {
-                    type: 'list',
-                    name: 'allRoles',
-                    message: 'View All Roles',
-                    choices: ['View All Roles'],
-                },
-            ])
-            .then((answers) => {
-                if (answers.allRoles === 'View All Roles') {
-                    pool.query('SELECT * FROM roles;', function (err, queryResult) {
-                        if (err) {
-                            console.error(err);
-                        } else {
-                            console.log(queryResult.rows);
-                        }
-                    });
-                }
-            });
+    allRoles() {
+        pool.query('SELECT * FROM roles;', (err, queryResult) => {
+            if (err) {
+                console.error(err);
+            } else {
+                console.table(queryResult.rows);
+            }
+        });
+        startManaging();
     }
 
-    addRole() {
+    async returnDepartments() {
+        return new Promise((resolve, reject) => {
+            let departmentsArray = [];
+            pool.query("SELECT * FROM departments;", (err, queryResult) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    departmentsArray = queryResult.rows;
+                    resolve(departmentsArray);
+                }
+            });
+        });
+    }
+
+    async addRole() {
+        const newDepartment = await this.returnDepartments();
+        // console.log("In Employee --> Roles returned: ", newRole);
+        const newDepartmentChoices = newDepartment?.map((department) => {
+            return {
+                name: department.name,
+                value: department.id,
+            };
+        });
         inquirer
             .prompt([
                 {
@@ -49,7 +58,7 @@ class Roles {
                     type: 'list',
                     name: 'department',
                     message: 'What department is it in?',
-                    choices: departmentChoices,
+                    choices: newDepartmentChoices,
                 },
             ])
             .then((answers) => {
@@ -61,11 +70,12 @@ class Roles {
                 pool.query(
                     'INSERT INTO roles (job_title, salary, department_id) VALUES ($1, $2, $3);',
                     [newRole.jobTitle, newRole.salary, newRole.department],
-                    function (error, data) {
+                    async function (error, data) {
                         if (error) {
                             console.log('Error', error);
                         } else {
                             console.log('New Role Added');
+                            await startManaging();
                         }
                     }
                 );
