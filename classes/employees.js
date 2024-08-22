@@ -110,16 +110,16 @@ class Employees {
                         newEmployee.role,
                         newEmployee.manager,
                     ],
-                    function (error, data) {
+                    async function (error, data) {
                         if (error) {
                             console.log("Error: ", error);
                         } else {
                             console.log("New employee added successfully.");
+                            await startManaging();
                         }
                     }
                 );
             });
-            startManaging();
     }
 
     async updateEmployee() {

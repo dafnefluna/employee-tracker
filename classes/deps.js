@@ -32,11 +32,12 @@ class Departments {
                 pool.query(
                     "INSERT INTO departments (name) VALUES ($1);",
                     [newDepartment.departmentName],
-                    function (error, data) {
+                    async function (error, data) {
                         if (error) {
                             console.log("Error", error);
                         } else {
                             console.log("New Department Added");
+                            await startManaging();
                         }
                     }
                 );
